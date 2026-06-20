@@ -2,9 +2,10 @@ import {
   Controller,
   Get,
   Post,
+  Body,
+  Param,
   UseGuards,
-  Req,
-  UnauthorizedException,
+  Request,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { MetricsService } from './metrics.service';
@@ -14,33 +15,49 @@ import { MetricsService } from './metrics.service';
 export class MetricsController {
   constructor(private readonly metricsService: MetricsService) {}
 
-  @Get()
-  async getMetrics() {
-    return this.metricsService.getLockState();
-  }
-
-  // 1. ADD THE NODES ROUTE (Maps to GET /metrics/nodes)
   @Get('nodes')
-  async getNodes() {
-    // Call whatever method you have in metricsService to fetch nodes/configs
+  async getNodes(): Promise<any> {
     return this.metricsService.getNodes();
   }
 
-  // 2. ADD THE LOGS ROUTE (Maps to GET /metrics/logs)
   @Get('logs')
-  async getLogs() {
-    // Call whatever method you have in metricsService to fetch system logs
+  async getLogs(): Promise<any> {
     return this.metricsService.getLogs();
   }
 
-  @Post('toggle-lock')
-  async toggleLock(@Req() req: any) {
-    if (req.user?.role !== 'Admin') {
-      throw new UnauthorizedException(
-        'Only an Admin can mutate systemic configurations.',
-      );
-    }
+  @Post('nodes/:nodeId/status')
+  async toggleNodeStatus(
+    @Param('nodeId') nodeId: string,
+    @Body('instruction') instruction: 'THROTTLE' | 'ISOLATE' | 'RESTORE',
+  ): Promise<any> {
+    return this.metricsService.toggleNodeStatus(nodeId, instruction);
+  }
 
+  @Post('nodes/provision')
+  async provisionNewNode(
+    @Body('name') name: string,
+    @Body('type') type: 'consumer' | 'enterprise' | 'secure',
+  ): Promise<any> {
+    return this.metricsService.provisionNewNode(name, type);
+  }
+
+  @Post('system/shield')
+  async engageCounterMeasureShield(): Promise<any> {
+    return this.metricsService.engageCounterMeasureShield();
+  }
+
+  @Post('system/breach-test')
+  async injectBreachSimulation(): Promise<any> {
+    return this.metricsService.injectBreachSimulation();
+  }
+
+  @Get('lock-state')
+  async getLockState(): Promise<any> {
+    return this.metricsService.getLockState();
+  }
+
+  @Post('toggle-lock')
+  async toggleLockState(@Request() req: any): Promise<any> {
     return this.metricsService.toggleLockState(req.user);
   }
 }

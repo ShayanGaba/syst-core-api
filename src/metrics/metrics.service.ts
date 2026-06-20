@@ -3,6 +3,12 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class MetricsService {
+  getLogs() {
+    throw new Error('Method not implemented.');
+  }
+  getNodes() {
+    throw new Error('Method not implemented.');
+  }
   constructor(private readonly prisma: PrismaService) {}
 
   async getLockState() {

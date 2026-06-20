@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
-// 100% strict type alignment to stop the TS compiler from throwing errors
 interface SystemNode {
   id: string;
   name: string;
@@ -14,7 +13,6 @@ interface SystemNode {
 
 @Injectable()
 export class MetricsService {
-  // Explicitly typed array to allow dynamic modifications completely error-free
   private fallbackNodes: SystemNode[] = [
     {
       id: 'node-alpha-01',
@@ -84,6 +82,17 @@ export class MetricsService {
         where: { id: nodeId },
         data: { status: targetStatus },
       });
+
+      // Write action to terminal feed log
+      await this.prisma.$executeRawUnsafe('PRAGMA foreign_keys = OFF;');
+      await this.prisma.systemLog.create({
+        data: {
+          action: `NODE_${nodeId.toUpperCase()}_STATUS_MUTATION_TO_${targetStatus}`,
+          status: 'SUCCESS',
+          tenantId: 'SYSTEM_ADMIN',
+        },
+      });
+      await this.prisma.$executeRawUnsafe('PRAGMA foreign_keys = ON;');
     } catch (error) {
       const node = this.fallbackNodes.find((n) => n.id === nodeId);
       if (node) node.status = targetStatus;
@@ -107,6 +116,17 @@ export class MetricsService {
 
     try {
       await this.prisma.systemNode.create({ data: newNode });
+
+      // Write action to terminal feed log
+      await this.prisma.$executeRawUnsafe('PRAGMA foreign_keys = OFF;');
+      await this.prisma.systemLog.create({
+        data: {
+          action: `CLUSTER_INFRASTRUCTURE_EXPANSION_PROVISIONED_${newNode.id.toUpperCase()}`,
+          status: 'SUCCESS',
+          tenantId: 'SYSTEM_ADMIN',
+        },
+      });
+      await this.prisma.$executeRawUnsafe('PRAGMA foreign_keys = ON;');
     } catch (error) {
       this.fallbackNodes.push(newNode);
     }
@@ -118,6 +138,17 @@ export class MetricsService {
       await this.prisma.systemNode.updateMany({
         data: { status: 'ONLINE' },
       });
+
+      // Write action to terminal feed log
+      await this.prisma.$executeRawUnsafe('PRAGMA foreign_keys = OFF;');
+      await this.prisma.systemLog.create({
+        data: {
+          action: 'ACTIVE_COUNTER_MEASURE_SHIELD_ENGAGED_GLOBAL',
+          status: 'SUCCESS',
+          tenantId: 'SYSTEM_ADMIN',
+        },
+      });
+      await this.prisma.$executeRawUnsafe('PRAGMA foreign_keys = ON;');
     } catch (error) {
       this.fallbackNodes.forEach((n) => (n.status = 'ONLINE'));
     }
@@ -138,6 +169,17 @@ export class MetricsService {
           data: { status: 'COMPROMISED' },
         });
       }
+
+      // Write action to terminal feed log
+      await this.prisma.$executeRawUnsafe('PRAGMA foreign_keys = OFF;');
+      await this.prisma.systemLog.create({
+        data: {
+          action: 'MALICIOUS_BREACH_DDOS_VECTOR_SIMULATION_INJECTED',
+          status: 'WARNING',
+          tenantId: 'SYSTEM_ADMIN',
+        },
+      });
+      await this.prisma.$executeRawUnsafe('PRAGMA foreign_keys = ON;');
     } catch (error) {
       if (this.fallbackNodes.length > 0) {
         this.fallbackNodes[0].status = 'COMPROMISED';

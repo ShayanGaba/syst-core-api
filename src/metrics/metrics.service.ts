@@ -83,7 +83,6 @@ export class MetricsService {
         data: { status: targetStatus },
       });
 
-      // Write action to terminal feed log
       await this.prisma.$executeRawUnsafe('PRAGMA foreign_keys = OFF;');
       await this.prisma.systemLog.create({
         data: {
@@ -117,7 +116,6 @@ export class MetricsService {
     try {
       await this.prisma.systemNode.create({ data: newNode });
 
-      // Write action to terminal feed log
       await this.prisma.$executeRawUnsafe('PRAGMA foreign_keys = OFF;');
       await this.prisma.systemLog.create({
         data: {
@@ -139,7 +137,6 @@ export class MetricsService {
         data: { status: 'ONLINE' },
       });
 
-      // Write action to terminal feed log
       await this.prisma.$executeRawUnsafe('PRAGMA foreign_keys = OFF;');
       await this.prisma.systemLog.create({
         data: {
@@ -170,7 +167,6 @@ export class MetricsService {
         });
       }
 
-      // Write action to terminal feed log
       await this.prisma.$executeRawUnsafe('PRAGMA foreign_keys = OFF;');
       await this.prisma.systemLog.create({
         data: {
